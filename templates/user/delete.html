@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<h3>{{ user["name"] }}さんの資料</h3>
+<h3 style="text-align:center;">{{message}}</h3>
+
+<div>
+
+  {% from "_hiddenformhelpers.html" import render_hidden_field %}
+
+  <form  method="post" action="{{ url_for('user_delete', id=id) }}">
+
+    <ul>
+        <li>
+          {{ render_hidden_field(form.id) }}
+        </li>
+
+
+        <li class="submit">
+          <input type="submit" >
+        </li>
+
+     </ul>
+
+  </form>
+
+</div>
+
+
+{% endblock %}

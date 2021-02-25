@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<h4 style="text-align:center;">{{message}}</h4>
+
+<div>
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul class=flashes>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+</div>
+<div>
+
+	{% from "_formhelpers.html" import render_field %}
+	{% from "_hiddenformhelpers.html" import render_hidden_field %}
+
+	<form method="post" action="{{ url_for('hotel_update', id=id) }}">
+		<ul>
+		{{ render_hidden_field(form.id) }}
+		{{ render_field(form.name) }}
+		{{ render_field(form.name_en) }}
+		{{ render_field(form.img_src) }}
+		{{ render_field(form.district) }}
+		{{ render_field(form.address) }}
+		{{ render_field(form.station) }}
+		{{ render_field(form.price) }}
+		{{ render_field(form.room_size) }}
+		{{ render_field(form.max_ppl) }}
+		{{ render_field(form.equipments) }}
+		{{ render_field(form.summary) }}
+		{{ render_field(form.introduction) }}
+
+
+			<li class="submit">
+			<input type="submit" >
+			</li>
+		</ul>
+	</form>
+</div>
+
+{% endblock %}

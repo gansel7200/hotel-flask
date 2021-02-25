@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+<div>
+    {% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul class=flashes>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+
+</div>
+
+<div>
+
+    {% from "_formhelpers.html" import render_field %}
+    {% from "_hiddenformhelpers.html" import render_hidden_field %}
+
+	<form method="post" action="{{ url_for('user_add') }}" >
+		<ul>
+
+		{{ render_hidden_field(form.user_id) }}
+		{{ render_hidden_field(hotel_id)  }}
+		{{ render_field(form.check_in) }}
+		{{ render_field(form.check_out) }}
+
+          <li class="submit">
+          <input type="submit" >
+          </li>
+
+        </ul>
+
+    </form>
+
+</div>
+
+
+
+
+
+{% endblock %}

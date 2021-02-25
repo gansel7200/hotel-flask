@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+
+            <div class="form-group col-md-6">
+
+                <p>ホテル名前</p>
+                <p>{{ hotel['name'] }}</p>
+                <p>予約者名前</p>
+                <p>{{ user["name"] }}</p>
+
+                <p>チェックイン日</p>
+                <p>{{ check_in }}</p>
+
+                <p>チェックアウト日</P>
+                <p>{{ check_out }}</p>
+
+                <form method="post" action="{{ url_for('post_save_reservation') }}">
+                    <input type="hidden" name="user_id" value="{{ user['id'] }}">
+                    <input type="hidden" name="hotel_id" value="{{ hotel['id'] }}">
+                    <input type="hidden" name="check_in" value="{{ check_in }}">
+                    <input type="hidden" name="check_out" value="{{ check_out }}">
+
+                    <input type="submit" value="save">
+                    <a href="{{ url_for('index') }}">cancel</a>
+
+                </form>
+
+
+
+
+            </div>
+
+
+{% endblock %}

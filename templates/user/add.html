@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<h4 style="text-align:center;">{{message}}</h4>
+
+<div>
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul class=flashes>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+</div>
+<div>
+
+
+	{% from "_formhelpers.html" import render_field %}
+
+	<form method="post" action="{{ url_for('user_add') }}" id="form1">
+		<ul>
+
+		{{ render_field(form.name) }}
+		{{ render_field(form.katakana_name) }}
+		{{ render_field(form.mail) }}
+		{{ render_field(form.password) }}
+		{{ render_field(form.confirm) }}
+		{{ render_field(form.telephone) }}
+
+
+			<li class="submit">
+			<input type="submit" >
+			</li>
+		</ul>
+	</form>
+</div>
+
+
+{% endblock %}

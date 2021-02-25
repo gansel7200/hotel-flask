@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<h4 style="text-align:center;">{{message}}</h4>
+
+<div>
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul class=flashes>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+</div>
+
+<div>
+	<form method="post" action="{{ url_for('post_hotel_update') }}">
+		<ul>
+			<li>
+				<label for="id" ></label>
+				<input id="id" type="hidden" name="id" value="{{ hotel.id }}"  >
+			</li>
+
+			<li>
+				<label for="name">ホテル名前</label>
+				<input id="name" type="text" name="name" value="{{ hotel.name|default('', True) }}" >
+			</li>
+
+			<li>
+				<label for="english_name">Hotel Name</label>
+				<input id="english_name" type="text" name="name_en" value="{{ hotel.name_en|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="img_src">写真</label>
+				<input id="img_src" type="text" name="img_src" value="{{ hotel.img_src|default('', True) }}" >
+			</li>
+
+			<li>
+				<label for="district_id">区場所</label>
+				<select id="district_id"  name="district_id" >
+					{% for district in districts %}
+					<option value="{{ district.id }}"
+							{% if district.id == hotel.district_id %}
+								selected
+							{% endif %}
+					>{{ district.name }}</option>
+					{% endfor %}
+				</select>
+			</li>
+
+			<li>
+				<label for="address">住所</label>
+				<input id="address" type="text" name="address" value="{{ hotel.address|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="station">最寄り駅</label>
+				<input id="station" type="text" name="station" value="{{ hotel.station|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="number">値段</label>
+				<input id="number" type="number" name="price" value="{{ hotel.price|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="room_size">部屋サイズ</label>
+				<input id="room_size" type="text" name="room_size" value="{{ hotel.room_size|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="max_ppl">人数</label>
+				<input id="max_ppl" type="text" name="max_ppl" value="{{ hotel.max_ppl|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="equipments">設備</label>
+				<input id="equipments" type="text" name="equipments" value="{{ hotel.equipments|default('', True) }}">
+			</li>
+
+			<li>
+				<label for="summary">ホテル紹介</label>
+				<textarea id="summary" name="summary">{{ hotel.summary|default("", True) }}</textarea>
+			</li>
+
+			<li>
+				<label for="introduction">ホテル情報</label>
+				<textarea id="introduction" name="introduction" class="input">{{ hotel.introduction|default("", True) }}</textarea>
+			</li>
+
+			<li class="submit">
+			<input type="submit" >
+			</li>
+
+		</ul>
+
+	</form>
+
+</div>
+
+
+
+
+
+
+
+{% endblock %}

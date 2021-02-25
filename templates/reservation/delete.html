@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h3>{{ session["user"]["name"] }}さん　の　予約</h3>
+
+{% for reservation in reservations %}
+{% from "_hiddenformhelpers.html" import render_hidden_field %}
+
+<div>
+
+    <p>予約者：{{ reservation["user"]["name"] }}</P>
+    <P>予約ホテル：{{ reservation["hotel"]["name"] }} </P>
+    <P>チェックイン日：{{ reservation["check_in"] }}</P>
+    <P>チェックアウト日：{{ reservation["check_out"] }}</P>
+    <P>予約状態：{% if reservation["status"] == 1 %}予約ずみ{% else %}支払ずみ{% endif %}</P>
+
+    <form method="post" action="{{ url_for('post_save_reservation') }}">
+        {{ render_hidden_field(form.id) }}
+        <input type='submit' value='予約キャンセル'>
+
+    </form>
+
+</div>
+
+ {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+<div>
+    {% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul class=flashes>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+
+</div>
+
+
+<div>
+
+    <form  method="post" action="{{ url_for('post_login') }}">
+
+         <ul>
+          <li>
+            <label for="mail">メール:</label>
+            <input id="mail" type="text"  name="mail">
+          </li>
+
+
+          <li>
+            <label for="password">パスワード:</label>
+            <input id="password" type="text"  name="password">
+          </li>
+
+
+
+          <li class="submit">
+            <input type="submit" >
+          </li>
+
+         </ul>
+
+    </form>
+
+</div>
+
+
+
+
+
+{% endblock %}

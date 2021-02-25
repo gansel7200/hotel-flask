@@ -1,0 +1,215 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+	<div class="container">
+		<div class="row justify-content-around">
+			<div class="col-6 text-center" >
+				<P><img class="img"  src="{{ url_for('static', filename=hotel['img_src'] ) }}"></P>
+
+			</div>
+
+
+			<div class="col-6 text-center">
+	    
+				<table class="table table-bordered">
+
+			    	<thead>
+			      		<tr>
+			        		<th>ホテル</th>
+			        		<td>{{ hotel["name"] }}</td>
+			      		</tr>
+					</thead>
+			    
+			    	<tbody>
+			    		<tr>
+			        		<th>値段</th>
+			        		<td>{{ hotel["price"] }}円</td>
+			      		</tr>
+
+			      		<tr>
+			        		<th>広さ</th>
+			        		<td>{{ hotel["room_size"] }}</td>
+			      		</tr>
+					
+						<tr>
+			        		<th>人数</th>
+			        		<td>{{ hotel["max_ppl"] }}名</td>
+			      		</tr>
+
+			      		<tr>
+			        		<th>施設</th>
+			        		<td>{{ hotel["equipments"] }}</td>
+			      		</tr>
+			    	</tbody>
+				</table>
+					<a href="{{ url_for('get_reservation', id=hotel['id']) }}">予約する</a>
+			</div>
+		</div>
+	</div>
+	
+	<p>
+	</p>
+		
+
+  	<div class="container" >
+	<div class="jumbotron" style="background-color:lavender;">
+    	<div class="row">
+   			<div class=col></div>
+			<div class="col-12">
+				<h3>{{ hotel["name_en"] }}</h3>
+        		<p>{{ hotel["introduction"] }}</p>
+    		</div>
+   			<div class=col> </div>
+  		</div>
+ 	</div>
+	
+	<br>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-6">
+			
+				<h1> 2021年 03月 </h1>
+
+				<table class="table">
+					<thead class="thead-light">
+						<tr>
+							<th>月</th>
+							<th>火</th>
+							<th>水</th>
+							<th>木</th>
+							<th>金</th>
+							<th class ="text-danger"> 土</th>
+							<th class ="text-danger"> 日</th>
+						</tr>
+					</thead>
+						<tbody>
+							<tr>
+							 	<td>1</td>
+								<td>2</td>
+								<td>3</td>
+								<td>4</td>
+								<td>5</td>
+								<td>6</td>
+								<td>7</td>
+							</tr>
+							<tr>
+								<td>8</td>
+								<td>9</td>
+								<td>10</td>
+								<td>11</td>
+								<td>12</td>
+								<td>13</td>
+								<td>14</td>
+							</tr>
+							<tr>
+								<td>15</td>
+								<td>16</td>
+								<td>17</td>
+								<td class ="text-danger"> 18</td>
+								<td>19</td>
+								<td>20</td>
+								<td>21</td>
+							</tr>
+								<tr>
+							 	<td>22</td>
+								<td>23</td>
+								<td>24</td>
+								<td>25</td>
+								<td>26</td>
+								<td>27</td>
+								<td>28</td>
+							</tr>
+							</tr>
+								<tr>
+							 	<td>29</td>
+								<td>30</td>
+								<td>31</td>
+								<td> </td>
+								<td> </td>
+								<td> </td>
+								<td> </td>
+							</tr>
+					
+						</tbody>
+				</table>
+			</div>
+
+			<div class="col-6">
+				<h1> 2021年 04月 </h1>
+
+				<table class="table">
+					<thead class="thead-light">
+						<tr>
+							<th>月</th>
+							<th>火</th>
+							<th>水</th>
+							<th>木</th>
+							<th>金</th>
+							<th class ="text-danger"> 土</th>
+							<th class ="text-danger"> 日</th>
+						</tr>
+					</thead>
+						<tbody>
+							<tr>
+							 	<td> </td>
+								<td> </td>
+								<td> </td>
+							 	<td>1</td>
+								<td>2</td>
+								<td>3</td>
+								<td>4</td>
+								
+							</tr>
+							<tr>
+								<td>5</td>
+								<td>6</td>
+								<td>7</td>
+								<td>8</td>
+								<td>9</td>
+								<td>10</td>
+								<td>11</td>
+								
+							</tr>
+							<tr>
+								<td>12</td>
+								<td>13</td>
+								<td>14</td>
+								<td>15</td>
+								<td>16</td>
+								<td>17</td>
+								<td>18</td>
+								
+							</tr>
+							<tr>
+							 	<td>19</td>
+								<td>20</td>
+								<td>21</td>
+							 	<td>22</td>
+								<td>23</td>
+								<td>24</td>
+								<td>25</td>
+								
+							</tr>
+							</tr>
+							<tr>
+							 	<td>26</td>
+								<td>27</td>
+								<td>28</td>
+							 	<td class ="text-danger"> 29</td>
+								<td>30</td>
+								<td>  </td>
+								<td>  </td>
+				
+							</tr>
+					
+						</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}

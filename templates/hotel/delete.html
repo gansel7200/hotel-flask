@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<h4 style="text-align:center;">{{message}}</h4>
+
+
+<div>
+
+	{% from "_hiddenformhelpers.html" import render_hidden_field %}
+
+	<form method="post" action=" {{ url_for('hotel_delete', id=id) }}">
+
+		<ul>
+			<li><div style="text-align:center;"><h4 >{{ hotel.name }}</h4></div></li>
+
+			<li>
+			  {{ render_hidden_field(form.id) }}
+			</li>
+
+			<li class="submit">
+			  <input type="submit" >
+			</li>
+		</ul>
+
+	</form>
+</div>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+      <div>
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <ul class=flashes>
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+      </div>
+
+      <div class="row">
+
+        {% for hotel in hotels %}
+
+        <div class="col-sm-4 hotel">
+
+          <div class="card" style="width:300px">
+
+            <div class="card-body">
+              <h4 class="card-title">{{ hotel.name }}</h4>
+            </div>
+
+            <img class="card-img" src="{{ url_for('static', filename=hotel.img_src ) }}">
+
+            <div class="container">
+              <table class="table table-striped">
+
+                <tbody>
+
+                  <tr>
+                    <td class="bold">値段</td>
+                    <td>{{ hotel.price }}円〜</td>
+                  </tr>
+
+                  <tr>
+                    <td class="bold">最寄り駅</td>
+                    <td>{{ hotel.station }}</td>
+                  </tr>
+
+                  <tr>
+                    <td class="bold">区</td>
+                    <td>{{ hotel.district.name }}</td>
+                  </tr>
+
+                  <tr>
+                    <td colspan="2">
+                    <P>{{ hotel.summary }}</P>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <a href="/detail/{{ hotel.id }}" class="btn btn-info">IMFORMATION</a>
+
+          </div>
+        </div>
+
+        {% endfor %}
+
+      </div>
+
+<input type="text" name="hotel_id" id="input_hotel_id">
+<button id="top">top</button>
+
+
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+</script>
+        <script>
+          $(document).ready(function(){
+            $("div.hotel").click(function(){
+              $(this).hide();
+            });
+
+            $("button#top").click(function(){
+
+              var hotel_id = $("#input_hotel_id").val()
+              $.get("/hotel/" + hotel_id,function(data,status){
+                result = JSON.parse(data);
+                  alert("hotel name: " + result["hotel_name"] + + "\n station:" + result["station"] + "\n状态: " + status);
+                });
+            });
+          });
+
+        </script>
+
+
+{% endblock %}
