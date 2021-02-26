@@ -17,11 +17,13 @@
                 <p>チェックアウト日</P>
                 <p>{{ check_out }}</p>
 
+                {% from "_hiddenformhelpers.html" import render_hidden_field %}
+
                 <form method="post" action="{{ url_for('post_save_reservation') }}">
-                    <input type="hidden" name="user_id" value="{{ user['id'] }}">
-                    <input type="hidden" name="hotel_id" value="{{ hotel['id'] }}">
-                    <input type="hidden" name="check_in" value="{{ check_in }}">
-                    <input type="hidden" name="check_out" value="{{ check_out }}">
+                    {{ render_hidden_field(form.user_id) }}
+		            {{ render_hidden_field(form.hotel_id)  }}
+		            {{ render_hidden_field(form.check_in) }}
+		            {{ render_hidden_field(form.check_out) }}
 
                     <input type="submit" value="save">
                     <a href="{{ url_for('index') }}">cancel</a>

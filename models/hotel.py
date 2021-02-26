@@ -26,6 +26,12 @@ class Hotel(db.Model):
     district_id = Column(Integer, ForeignKey('districts.id'))
     district = relationship("models.district.District", lazy='subquery')
 
+    reservations = relationship("Reservation", back_populates="hotel")
+
+    def __repr__(self):
+        return self.name
+
+
 
 
 

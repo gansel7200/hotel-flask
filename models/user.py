@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from database import db
+from sqlalchemy.orm import relationship
 
 
 class User(db.Model):
@@ -16,4 +17,8 @@ class User(db.Model):
     updated_at = Column(DateTime, default=None)
     deleted_at = Column(DateTime, default=None)
 
+    reservations = relationship("Reservation", back_populates="user")
+
+    def __repr__(self):
+        return self.name
 

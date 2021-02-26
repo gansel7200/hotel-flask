@@ -2,19 +2,23 @@ from flask import Flask, render_template, url_for, request, redirect, flash, ses
 import models
 from functools import wraps
 from datetime import date
+from database import init_db
+from database import db
 from models.hotel import Hotel
 from models.user import User
 from models.district import District
-from database import init_db
-from database import db
+from models.reservation import Reservation
 from form.hotel.add import Add as AddHotelForm
 from form.hotel.update import Update as UpdateHotelForm
 from form.hotel.delete import Delete as DeleteHotelForm
 from form.user.add import Add as AddUserForm
 from form.user.update import Update as UpdateUserForm
 from form.user.delete import Delete as DeleteUserForm
+from form.reservation.add import Add as AddReservationForm
+from form.reservation.delete import Delete as DeleteReservationForm
 import json
 import datetime
+from sqlalchemy import and_
 
 
 def create_app():
@@ -44,7 +48,7 @@ def login_required(f):
 
 @app.route('/')
 def index():
-    hotels = Hotel.query.filter(Hotel.deleted_at==None).all() #顯示不要出現
+    hotels = Hotel.query.filter(Hotel.deleted_at==None).all() #顯示不要出現倫理刪除
 
     return render_template("index.html", hotels=hotels)
 
@@ -86,7 +90,9 @@ def hotel_add():
             introduction=form.introduction.data,
             room_size=form.room_size.data,
             max_ppl=form.max_ppl.data,
-            equipments=form.equipments.data
+            equipments=form.equipments.data,
+            created_at=datetime.datetime.now(),
+            updated_at=datetime.datetime.now()
         )
 
         db.session.add(hotel)
@@ -127,6 +133,7 @@ def hotel_update(id):
         hotel.max_ppl = form.max_ppl.data
         hotel.equipments = form.equipments.data
 
+        hotel.updated_at = datetime.datetime.now()
         db.session.add(hotel)
         db.session.commit()
         flash('修正しました')
@@ -157,7 +164,6 @@ def hotel_delete(id):
 
         hotel.deleted_at = datetime.datetime.now()
         db.session.add(hotel)
-
         db.session.commit()
 
         flash('消除しました')
@@ -182,10 +188,11 @@ def user_add():
             katakana_name=form.katakana_name.data,
             mail=form.mail.data,
             password=form.password.data,
-            telephone=form.telephone.data
+            telephone=form.telephone.data,
+            created_at=datetime.datetime.now(),
+            updated_at=datetime.datetime.now()
         )
 
-        user.created_at = datetime.datetime.now()
         db.session.add(user)
         db.session.commit()
         flash('登録しました')
@@ -301,14 +308,19 @@ def post_login():
 @app.route('/reservation/<id>', methods=['GET'])
 @login_required
 def get_reservation(id):
-    hotel = models.get_hotel_by_id(id)
-    user = session["user"]
+    hotel = Hotel.query.get(id)
+    user_id = session['user']["id"]
+    user = User.query.get(user_id)
+    form = AddReservationForm()
+    form.user_id.data = user_id
+    form.hotel_id.data = hotel.id
 
     return render_template(
-        "add.html",
+        "reservation/add.html",
         message="入力してくださる。",
         hotel=hotel,
-        user=user
+        user=user,
+        form=form
 
     )
 
@@ -316,79 +328,112 @@ def get_reservation(id):
 @app.route('/reservation', methods=['POST'])
 @login_required
 def post_reservation():
-    user_id = request.form["user_id"]
-    user = models.get_user_by_id(user_id)
-    hotel_id = request.form["hotel_id"]
-    hotel = models.get_hotel_by_id(hotel_id)
-    check_in = request.form["check_in"]
-    check_out = request.form["check_out"]
+    form = AddReservationForm(request.form)
 
-    if date.fromisoformat(check_out) < date.fromisoformat(check_in) or date.fromisoformat(
-            check_in) < date.today() or date.fromisoformat(check_out) < date.today():
-        flash("正しい日付けを選択してください。")
-        return redirect(url_for("get_reservation", id=hotel_id))
+    if request.method == 'POST' and form.validate():
+
+        check_in = form.check_in.data
+        check_out = form.check_out.data
+
+        check_in_not_ok = Reservation.query.filter(and_(Reservation.check_in <= check_in, Reservation.check_out > check_in, Reservation.deleted_at == None)).count()
+        check_out_not_ok = Reservation.query.filter(and_(Reservation.check_in < check_in, Reservation.check_out >= check_in, Reservation.deleted_at == None)).count()
+        if check_in_not_ok > 0 or check_out_not_ok > 0:
+            return render_template(
+                'reservation/add.html',
+                message="予約時間はすでに予約ずみです。",
+                form=form,
+                hotel=Hotel.query.get(form.hotel_id.data),
+                user=User.query.get(form.user_id.data)
+            )
+
+        reservation = Reservation(
+            user_id=form.user_id.data,
+            hotel_id=form.hotel_id.data,
+            check_in=form.check_in.data,
+            check_out=form.check_out.data,
+            created_at=datetime.datetime.now(),
+            updated_at=datetime.datetime.now()
+        )
+
+        db.session.add(reservation)
+        db.session.commit()
+        flash('予約ありがとうございます')
+        return redirect(url_for('index'))
 
     return render_template(
-        "confirm.html",
-        user=user,
-        hotel=hotel,
-        check_in=check_in,
-        check_out=check_out
+        'reservation/add.html',
+        message="ホテルを予約してください",
+        form=form,
+        hotel=Hotel.query.get(form.hotel_id.data),
+        user=User.query.get(form.user_id.data)
     )
-
-
-@app.route("/reservation/save", methods=["POST"])
-def post_save_reservation():
-    user_id = request.form["user_id"]
-    hotel_id = request.form["hotel_id"]
-    check_in = request.form["check_in"]
-    check_out = request.form["check_out"]
-
-    models.reservation(
-        user_id=user_id,
-        hotel_id=hotel_id,
-        check_in=check_in,
-        check_out=check_out
-    )
-
-    flash("予約成功")
-    return redirect(url_for("user_reservation"))
 
 
 @app.route("/user/reservation")
 def user_reservation():
+
     user_id = session["user"]['id']
-    reservations = models.user_reservation(user_id)
-    return render_template("user_reservation.html", reservations=reservations)
+    reservations = Reservation.query.filter(Reservation.user_id == user_id).all()
+    print(reservations)
+    return render_template("reservation/user_reservation.html", reservations=reservations)
 
 
 @app.route("/user/reservation/delete", methods=["POST"])
 def reservation_delete():
-    id = int(request.form['id'])
+    reservation_id = request.form.get("reservation_id")
+    reservation = Reservation.query.get(reservation_id)
+    reservation.deleted_at = datetime.datetime.now()
+    db.session.add(reservation)
+    db.session.commit()
 
-    reservation = models.get_reservation_by_id(id)
+    flash('消除しました')
+    return redirect(url_for('index'))
 
-    if reservation["status"] == 1:
 
-        models.reservation_delete(id=id)
+    # if reservation["status"] == 1:
+    #
+    #     models.reservation_delete(id=id)
+    #
+    #     hotel_name = reservation["hotel"]["name"]
+    #     check_in = reservation["check_in"]
+    #     check_out = reservation["check_out"]
+    #
+    #     message_format = """
+    #     {hotel_name}ホテルのチェックイン時間（{check_in}）とチェックアウト時間({check_out})の予約をキャンセルしました。
+    #     """
+    #     message = message_format.format(
+    #         hotel_name=hotel_name,
+    #         check_in=check_in,
+    #         check_out=check_out
+    #     )
+    #     flash(message)
+    # else:
+    #     flash("can not be deleted")
+    #
+    # return redirect(url_for("user_reservation"))
 
-        hotel_name = reservation["hotel"]["name"]
-        check_in = reservation["check_in"]
-        check_out = reservation["check_out"]
 
-        message_format = """
-        {hotel_name}ホテルのチェックイン時間（{check_in}）とチェックアウト時間({check_out})の予約をキャンセルしました。
-        """
-        message = message_format.format(
-            hotel_name=hotel_name,
-            check_in=check_in,
-            check_out=check_out
-        )
-        flash(message)
-    else:
-        flash("can not be deleted")
+# @app.route("/reservation/save", methods=["POST"])
+# def post_save_reservation():
+#     user_id = request.form["user_id"]
+#     hotel_id = request.form["hotel_id"]
+#     check_in = request.form["check_in"]
+#     check_out = request.form["check_out"]
+#
+#     models.reservation(
+#         user_id=user_id,
+#         hotel_id=hotel_id,
+#         check_in=check_in,
+#         check_out=check_out
+#     )
+#
+#     flash("予約成功")
+#     return redirect(url_for("user_reservation"))
+#
+#
 
-    return redirect(url_for("user_reservation"))
+#
+#
 
 
 if __name__ == "__main__":

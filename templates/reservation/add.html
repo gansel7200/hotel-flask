@@ -15,16 +15,22 @@
 
 </div>
 
+<h4 style="text-align:center;">{{message}}</h4>
+
 <div>
+
 
     {% from "_formhelpers.html" import render_field %}
     {% from "_hiddenformhelpers.html" import render_hidden_field %}
 
-	<form method="post" action="{{ url_for('user_add') }}" >
+	<form method="post" action="{{ url_for('post_reservation') }}" >
 		<ul>
 
+			<p>ホテル名：{{ hotel.name }}</p>
+			<p>予約名前：{{ user.name }}</p>
+
 		{{ render_hidden_field(form.user_id) }}
-		{{ render_hidden_field(hotel_id)  }}
+		{{ render_hidden_field(form.hotel_id)  }}
 		{{ render_field(form.check_in) }}
 		{{ render_field(form.check_out) }}
 
