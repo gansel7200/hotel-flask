@@ -1,7 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, session
-import models
+import model
 from functools import wraps
-from datetime import date
 from database import init_db
 from database import db
 from models.hotel import Hotel
@@ -15,10 +14,11 @@ from form.user.add import Add as AddUserForm
 from form.user.update import Update as UpdateUserForm
 from form.user.delete import Delete as DeleteUserForm
 from form.reservation.add import Add as AddReservationForm
-from form.reservation.delete import Delete as DeleteReservationForm
+from form.user.login import Login as UserLoginForm
 import json
 import datetime
 from sqlalchemy import and_
+import requests
 
 
 def create_app():
@@ -46,9 +46,22 @@ def login_required(f):
     return wrap
 
 
+def admin_login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'user' in session and session["user"]["admin"] == 1:  #管理員後台admin是1
+
+            return f(*args, **kwargs)
+        else:
+            flash("Please Login first")
+            return redirect(url_for('get_login'))
+
+    return wrap
+
+
 @app.route('/')
 def index():
-    hotels = Hotel.query.filter(Hotel.deleted_at==None).all() #顯示不要出現倫理刪除
+    hotels = Hotel.query.filter( Hotel.deleted_at==None ).all() #顯示不要出現倫理刪除
 
     return render_template("index.html", hotels=hotels)
 
@@ -271,9 +284,13 @@ def user_delete(id):
 
 @app.route('/login', methods=['GET'])
 def get_login():
+
+    form = UserLoginForm(request.form)
+
     return render_template(
         "login.html",
-        message="メールとパスワードを入力してください。"
+        message="メールとパスワードを入力してください。",
+        form=form
     )
 
 
@@ -288,10 +305,11 @@ def get_logout():
 
 @app.route('/login', methods=['POST'])
 def post_login():
+
     mail = request.form["mail"]
     password = request.form["password"]
 
-    user = models.login(
+    user = model.login(
         mail=mail,
         password=password,
     )
@@ -300,7 +318,7 @@ def post_login():
         flash("正しいメールとパスワードを入力してください。")
         return redirect(url_for('get_login'))
 
-    session["user"] = user #sission在model.login中已經抓取所有資料了
+    session["user"] = user
 
     return redirect(url_for("index"))
 
@@ -351,6 +369,7 @@ def post_reservation():
             hotel_id=form.hotel_id.data,
             check_in=form.check_in.data,
             check_out=form.check_out.data,
+            status=1,
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now()
         )
@@ -373,8 +392,8 @@ def post_reservation():
 def user_reservation():
 
     user_id = session["user"]['id']
-    reservations = Reservation.query.filter(Reservation.user_id == user_id).all()
-    print(reservations)
+    reservations = Reservation.query.filter(Reservation.user_id == user_id, Reservation.deleted_at==None).all()
+
     return render_template("reservation/user_reservation.html", reservations=reservations)
 
 
@@ -390,50 +409,62 @@ def reservation_delete():
     return redirect(url_for('index'))
 
 
-    # if reservation["status"] == 1:
-    #
-    #     models.reservation_delete(id=id)
-    #
-    #     hotel_name = reservation["hotel"]["name"]
-    #     check_in = reservation["check_in"]
-    #     check_out = reservation["check_out"]
-    #
-    #     message_format = """
-    #     {hotel_name}ホテルのチェックイン時間（{check_in}）とチェックアウト時間({check_out})の予約をキャンセルしました。
-    #     """
-    #     message = message_format.format(
-    #         hotel_name=hotel_name,
-    #         check_in=check_in,
-    #         check_out=check_out
-    #     )
-    #     flash(message)
-    # else:
-    #     flash("can not be deleted")
-    #
-    # return redirect(url_for("user_reservation"))
+@app.route("/admin", methods=['GET', "POST"])
+@admin_login_required
+def admin():
+    reservations = Reservation.query.filter(Reservation.deleted_at == None).all()
+
+    if request.method == 'POST':
+        reservation_id = request.form.get("reservation_id")
+        new_status = request.form.get("status")
+
+        reservation = Reservation.query.get(reservation_id)
+        reservation.status = new_status
+
+        reservation.updated_at = datetime.datetime.now()
+        db.session.add(reservation)
+        db.session.commit()
+        flash('変更しました')
+        return redirect(url_for('admin'))
+
+    return render_template("reservation/admin.html", reservations=reservations)
 
 
-# @app.route("/reservation/save", methods=["POST"])
-# def post_save_reservation():
-#     user_id = request.form["user_id"]
-#     hotel_id = request.form["hotel_id"]
-#     check_in = request.form["check_in"]
-#     check_out = request.form["check_out"]
-#
-#     models.reservation(
-#         user_id=user_id,
-#         hotel_id=hotel_id,
-#         check_in=check_in,
-#         check_out=check_out
-#     )
-#
-#     flash("予約成功")
-#     return redirect(url_for("user_reservation"))
-#
-#
+@app.route("/ajax/reservation/status/<reservation_id>/<status>")
+def ajax_reservation_status(reservation_id, status):
 
-#
-#
+    reservation = Reservation.query.get(reservation_id)
+    reservation.status = status
+    db.session.add(reservation)
+    db.session.commit()
+
+    result = {
+        "id": reservation_id,
+        "status": status
+    }
+
+    return json.dumps(result)
+
+
+@app.route("/test/<post_code>")
+def post_code(post_code):
+
+    query = {'zipcode': post_code}
+    response = requests.get('https://zipcloud.ibsnet.co.jp/api/search', params=query)
+    result = response.json()
+
+    if result["status"] == 200:
+        address_1 = result["results"][0]["address1"]
+        address_2 = result["results"][0]["address2"]
+        address_3 = result["results"][0]["address3"]
+
+        address = address_1+address_2+address_3
+
+        return address
+
+    else:
+        return result["message"]
+
 
 
 if __name__ == "__main__":

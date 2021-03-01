@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div>
+    {% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul class=flashes>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+</div>
+
+<h3>全て　の　予約</h3>
+
+{% for reservation in reservations %}
+<div>
+    <p>予約者：{{ reservation.user.name }}</P>
+    <P>予約ホテル：{{ reservation.hotel.name }} </P>
+    <P>チェックイン日：{{ reservation.check_in }}</P>
+    <P>チェックアウト日：{{ reservation.check_out }}</P>
+
+    <input type="hidden" name="reservation_id" value="{{ reservation.id }}">
+    <P id="status_changed_{{reservations.status}}">予約状態：
+        <select id="status"  name="status" value="{{ reservation.status }}">
+            <option value="1"{% if reservation.status ==1 %} selected {%endif%}}>予約済み</option>
+            <option value="2"{% if reservation.status ==2 %} selected {%endif%}}>支払済み</option>
+            <option value="3"{% if reservation.status ==3 %} selected {%endif%}}>入住済み</option>
+            <option value="4"{% if reservation.status ==4 %} selected {%endif%}}>キャンセル済み</option>
+        </select>
+    </P>
+
+
+    <hr>
+</div>
+
+ {% endfor %}
+
+<script>
+    $(document).ready(function(){
+        $("select").on("change",function(){
+            var input_reservation_id = $(this).parent().parent().find("input[name=reservation_id]").val();
+            var status = $(this).parent().parent().find("#status").children("option:selected").val();
+
+            $.get("/ajax/reservation/status/" + input_reservation_id + "/" + status, function(data, status){
+
+                alert("状態変更完了")
+
+                data = JSON.parse(data)
+                var result = "";
+                if(data.status == 1) {
+                     result = "予約済み";
+                }
+                if(data.status == 2) {
+                    result = "支払ずみ";
+                }
+                if(data.status == 3) {
+                    result = "入住済み";
+                }
+                if(data.status == 4) {
+                    result = "キャンセル済み";
+                }
+
+                $("p#status_changed_" + data.id).text(result);
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}
+

@@ -26,6 +26,13 @@
             height:500px
         }
 
+        .user {
+
+            display: flex;
+            align-items: center;
+
+        }
+
         form {
             margin: 0 auto;
             width: 500px;
@@ -98,7 +105,7 @@
 
 
                 <li class="nav-item">
-                <a class="nav-link" href="#">房間</a>
+                <a class="nav-link" href="{{ url_for('hotel_add') }}">ホテル登録</a>
                 </li>
 
 
@@ -108,7 +115,7 @@
 
 
                 <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('user_add') }}">使用者</a>
+                <a class="nav-link" href="{{ url_for('user_add') }}">使用者登録</a>
                 </li>
 
                 <li class="nav-item">
@@ -117,18 +124,33 @@
 
 
                 <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('user_reservation') }}">預約</a>
+                <a class="nav-link" href="{{ url_for('user_reservation') }}">預約一覧</a>
+                </li>
+
+
+                <li class="nav-item">
+                <a class="nav-link" href="#"></a>
                 </li>
 
 
                 {% if session["user"] %}
+
+                <li  class="nav-item">
+                <a class="nav-link" href="{{ url_for('get_logout') }}">ログアウト</a>
+                </li>
+
                 <li class="nav-item">
-                    {{ session["user"]["name"] }}<a class="nav-link" href="{{ url_for('get_logout') }}">ログアウト</a>
+                <a class="nav-link" href="#"></a>
                 </li>
+
+                <li class="user">{{ session["user"]["name"] }}</li>
+
                 {% else %}
-                <li>
-                    <a class="nav-link" href="{{ url_for('get_login') }}">ログイン</a>
+                <li >
+                    <a  class="nav-link" href="{{ url_for('get_login') }}">ログイン</a>
                 </li>
+
+
                 {% endif %}
 
 

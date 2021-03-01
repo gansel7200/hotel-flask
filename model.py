@@ -563,6 +563,7 @@ def login(mail, password):
     data["mail"] = row[3]
     data["password"] = row[4]
     data["telephone"] = row[5]
+    data["admin"] = row[9]
 
     return data
 

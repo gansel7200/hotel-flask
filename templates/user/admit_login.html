@@ -18,7 +18,7 @@
 
 <div>
 
-    <form  method="post" action="{{ url_for('post_login') }}">
+    <form  method="post" action="{{ url_for('admit_login') }}">
 
          <ul>
           <li>
@@ -31,6 +31,14 @@
             <label for="password">パスワード:</label>
             <input id="password" type="text"  name="password">
           </li>
+
+
+             <li>
+            <label for="admit">パスワード:</label>
+            <input id="admit" type="hidden"  name="admit" value="{{ user.admit }}>
+          </li>
+
+
 
 
           <li class="submit">

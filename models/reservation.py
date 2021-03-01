@@ -21,15 +21,15 @@ class Reservation(db.Model):
     hotel_id = Column(Integer, ForeignKey('hotels.id'))
     hotel = relationship("models.hotel.Hotel", lazy='subquery')
 
-    # def __repr__(self):
-    #     return "ID:" \
-    #            + str(self.id) \
-    #            + " UserId:" \
-    #            + self.user_id + \
-    #            " HotelId:" \
-    #            + self.hotel_id \
-    #            + self.check_in \
-    #            + self.check_out \
-    #            + self.status
+    def __repr__(self):
+        return "ID:" \
+               + str(self.id) \
+               + " UserId:" \
+               + self.user_id + \
+               " HotelId:" \
+               + self.hotel_id \
+               + self.check_in \
+               + self.check_out \
+               + self.status
 
 
